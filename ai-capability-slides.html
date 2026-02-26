@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 能力建设进展汇报</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 32px;
+    padding: 40px 20px;
+  }
+
+  /* ── Slide Shell ── */
+  .slide {
+    width: 960px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
+    background: #fff;
+    page-break-after: always;
+  }
+
+  /* ══════════════════════════════════
+     SLIDE 1 — Title
+  ══════════════════════════════════ */
+  .slide-1 {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 60%, #0a1929 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 80px;
+    color: #fff;
+  }
+
+  /* accent bar */
+  .slide-1::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 6px; height: 100%;
+    background: linear-gradient(180deg, #38bdf8, #818cf8);
+  }
+
+  /* decorative circles */
+  .slide-1::after {
+    content: "";
+    position: absolute;
+    right: -80px; bottom: -80px;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    background: rgba(56,189,248,.08);
+    pointer-events: none;
+  }
+
+  .s1-tag {
+    display: inline-block;
+    background: rgba(56,189,248,.18);
+    border: 1px solid rgba(56,189,248,.4);
+    color: #7dd3fc;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    width: fit-content;
+  }
+
+  .s1-title {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #f0f9ff;
+    margin-bottom: 16px;
+  }
+
+  .s1-title span {
+    color: #38bdf8;
+  }
+
+  .s1-subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    margin-bottom: 56px;
+    line-height: 1.6;
+  }
+
+  .s1-meta {
+    display: flex;
+    gap: 40px;
+  }
+
+  .s1-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .s1-meta-item .label {
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .s1-meta-item .value {
+    font-size: 15px;
+    color: #cbd5e1;
+  }
+
+  .s1-divider {
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+
+  /* initiative count badge */
+  .s1-badge-row {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .s1-badge {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(56,189,248,.12);
+    border: 1.5px solid rgba(56,189,248,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #38bdf8;
+  }
+
+  .s1-badge-label {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    letter-spacing: .06em;
+    line-height: 1.4;
+  }
+
+  /* ══════════════════════════════════
+     SLIDE 2 — Initiatives
+  ══════════════════════════════════ */
+  .slide-2 {
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .s2-header {
+    background: linear-gradient(90deg, #1e3a5f, #0f2744);
+    padding: 22px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .s2-header-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f0f9ff;
+    letter-spacing: .02em;
+  }
+
+  .s2-header-sub {
+    font-size: 13px;
+    color: #94a3b8;
+    background: rgba(255,255,255,.08);
+    padding: 4px 14px;
+    border-radius: 12px;
+  }
+
+  .s2-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+    padding: 24px 40px 28px;
+    gap: 16px;
+  }
+
+  /* initiative card */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    padding: 18px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+  }
+
+  .card-1::before { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+  .card-2::before { background: linear-gradient(90deg, #34d399, #059669); }
+  .card-3::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+  .card-4::before { background: linear-gradient(90deg, #a78bfa, #ec4899); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-1 .card-icon { background: #eff6ff; }
+  .card-2 .card-icon { background: #f0fdf4; }
+  .card-3 .card-icon { background: #fffbeb; }
+  .card-4 .card-icon { background: #faf5ff; }
+
+  .card-index {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .card-1 .card-index { color: #38bdf8; }
+  .card-2 .card-index { color: #34d399; }
+  .card-3 .card-index { color: #f59e0b; }
+  .card-4 .card-index { color: #a78bfa; }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.6;
+    padding-left: 48px;
+  }
+
+  /* progress section inside card */
+  .card-progress {
+    margin-top: 4px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px dashed #cbd5e1;
+    margin-left: 48px;
+  }
+
+  .progress-label {
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .progress-placeholder {
+    font-size: 12px;
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  .progress-bar-bg {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;   /* ← 在此填充百分比 */
+  }
+
+  .card-1 .progress-bar-fill { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+  .card-2 .progress-bar-fill { background: linear-gradient(90deg, #34d399, #059669); }
+  .card-3 .progress-bar-fill { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+  .card-4 .progress-bar-fill { background: linear-gradient(90deg, #a78bfa, #ec4899); }
+
+  /* slide number */
+  .slide-number {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  /* ── Print / Export hint ── */
+  .hint {
+    color: #475569;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  .hint kbd {
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  @media print {
+    body { background: #fff; gap: 0; padding: 0; }
+    .hint { display: none; }
+    .slide { box-shadow: none; border-radius: 0; page-break-after: always; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ SLIDE 1 ═══════════════════════════ -->
+<div class="slide slide-1">
+  <div class="s1-tag">Progress Report · 2025</div>
+  <div class="s1-divider"></div>
+  <div class="s1-title">AI 能力建设<br><span>阶段进展汇报</span></div>
+  <div class="s1-subtitle">聚焦赋能提效 · 推动 AI 融入研发全流程</div>
+  <div class="s1-meta">
+    <div class="s1-meta-item">
+      <span class="label">汇报部门</span>
+      <span class="value">（填写部门名称）</span>
+    </div>
+    <div class="s1-meta-item">
+      <span class="label">汇报人</span>
+      <span class="value">（填写姓名）</span>
+    </div>
+    <div class="s1-meta-item">
+      <span class="label">日期</span>
+      <span class="value">2026 年 XX 月</span>
+    </div>
+  </div>
+
+  <!-- right side badge -->
+  <div class="s1-badge-row">
+    <div class="s1-badge">4</div>
+    <div class="s1-badge-label">关键<br>举措</div>
+  </div>
+
+  <div class="slide-number">1 / 2</div>
+</div>
+
+
+<!-- ═══════════════════════════ SLIDE 2 ═══════════════════════════ -->
+<div class="slide slide-2">
+  <div class="s2-header">
+    <div class="s2-header-title">关键举措 &amp; 进展概览</div>
+    <div class="s2-header-sub">截至 2026 年 XX 月</div>
+  </div>
+
+  <div class="s2-body">
+
+    <!-- Card 1 -->
+    <div class="card card-1">
+      <div class="card-header">
+        <div class="card-icon">📚</div>
+        <div>
+          <div class="card-index">Initiative 01 · 知识赋能</div>
+          <div class="card-title">每月 AI 基础赋能分享<br>（概念 + 案例 + Q&amp;A）并归档</div>
+        </div>
+      </div>
+      <div class="card-desc">频率：每月 1 次 &nbsp;｜&nbsp; 形式：内部分享 + 归档文档</div>
+      <div class="card-progress">
+        <div class="progress-label">进展</div>
+        <div class="progress-placeholder">
+          · 已完成第 X 期，主题：（填写）<br>
+          · 累计参与人次：XX 人 &nbsp;|&nbsp; 归档文章：X 篇
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%"></div><!-- 填充进度 % -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="card card-2">
+      <div class="card-header">
+        <div class="card-icon">💡</div>
+        <div>
+          <div class="card-index">Initiative 02 · 实践传播</div>
+          <div class="card-title">每月 1–2 次 CodeAgent 优秀<br>实践分享，输出实践博客</div>
+        </div>
+      </div>
+      <div class="card-desc">形式：真实 MR / 新业务快速入门 &nbsp;｜&nbsp; 产出：实践博客</div>
+      <div class="card-progress">
+        <div class="progress-label">进展</div>
+        <div class="progress-placeholder">
+          · 已举办 X 次，分享案例：（填写）<br>
+          · 已发布博客：X 篇
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="card card-3">
+      <div class="card-header">
+        <div class="card-icon">🔧</div>
+        <div>
+          <div class="card-index">Initiative 03 · 工具孵化</div>
+          <div class="card-title">孵化 1–2 个 AI 提效工具/脚本/<br>插件，覆盖高频重复场景</div>
+        </div>
+      </div>
+      <div class="card-desc">目标：AI 融入开发流程 &nbsp;｜&nbsp; 产出：可复用工具/插件</div>
+      <div class="card-progress">
+        <div class="progress-label">进展</div>
+        <div class="progress-placeholder">
+          · 工具名称：（填写）&nbsp;|&nbsp; 状态：（开发中 / 已上线）<br>
+          · 覆盖场景：（填写）
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="card card-4">
+      <div class="card-header">
+        <div class="card-icon">🚀</div>
+        <div>
+          <div class="card-index">Initiative 04 · 需求试点</div>
+          <div class="card-title">各组 PL 规划 2–3 个适合<br>CodeAgent 完成的需求进行试点</div>
+        </div>
+      </div>
+      <div class="card-desc">前提：明确 CodeAgent 能力边界 &nbsp;｜&nbsp; 产出：试点结果报告</div>
+      <div class="card-progress">
+        <div class="progress-label">进展</div>
+        <div class="progress-placeholder">
+          · 已规划需求：（填写）<br>
+          · 试点状态：（进行中 / 已完成），结论：（填写）
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /s2-body -->
+
+  <div class="slide-number">2 / 2</div>
+</div>
+
+
+<!-- ── Usage hint (not printed) ── -->
+<div class="hint">
+  浏览器全屏预览 &nbsp;|&nbsp;
+  <kbd>Ctrl + P</kbd> → 另存为 PDF &nbsp;|&nbsp;
+  填充进度：修改每张卡片中 <kbd>progress-placeholder</kbd> 文字 及 <kbd>style="width: 0%"</kbd> 数值
+</div>
+
+</body>
+</html>
