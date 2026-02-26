@@ -3,501 +3,915 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 能力建设进展汇报</title>
+<title>AI 能力建设阶段进展汇报</title>
+
+<!-- Noto Sans SC for professional Chinese typography -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ============================================================
+   CSS CUSTOM PROPERTIES — Huawei Red Theme
+   Change colors here to retheme the entire deck
+   ============================================================ */
+:root {
+  /* Brand palette */
+  --red-vivid:   #CF0A2C;
+  --red-mid:     #8C0019;
+  --red-deep:    #5A0010;
+  --red-darkest: #3A000A;
+  --gold:        #F2C100;
+  --gold-light:  #FFD84D;
 
-  body {
-    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
-    background: #0f172a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    gap: 32px;
-    padding: 40px 20px;
+  /* Text */
+  --white:    #FFFFFF;
+  --w90:      rgba(255,255,255,.9);
+  --w70:      rgba(255,255,255,.7);
+  --w45:      rgba(255,255,255,.45);
+  --w20:      rgba(255,255,255,.20);
+  --w10:      rgba(255,255,255,.10);
+  --w06:      rgba(255,255,255,.06);
+
+  /* Typography — MUST use clamp() for viewport fitting */
+  --font:       'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --sz-xl:      clamp(2rem,   5.5vw, 4.5rem);
+  --sz-h2:      clamp(1.1rem, 2.4vw, 1.9rem);
+  --sz-h3:      clamp(.9rem,  1.7vw, 1.35rem);
+  --sz-body:    clamp(.72rem, 1.15vw, .97rem);
+  --sz-sm:      clamp(.6rem,  .9vw,  .78rem);
+
+  /* Spacing */
+  --pad:  clamp(1.4rem, 4vw, 4rem);
+  --gap:  clamp(.6rem,  1.3vw, 1.3rem);
+
+  /* Motion */
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+
+html {
+  height:100%;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  height: 100%;
+  overflow-x: hidden;
+  background: var(--red-darkest);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   SLIDE BASE — VIEWPORT FITTING (CRITICAL)
+   Every .slide = exactly 100vh, overflow:hidden. No exceptions.
+   ============================================================ */
+.slide {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;            /* Mobile browser chrome-aware */
+  overflow: hidden;          /* ← Non-negotiable */
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background:
+    repeating-linear-gradient(          /* Subtle diagonal weave */
+      -52deg,
+      transparent,
+      transparent 48px,
+      rgba(255,255,255,.018) 48px,
+      rgba(255,255,255,.018) 49px
+    ),
+    linear-gradient(
+      140deg,
+      var(--red-darkest) 0%,
+      var(--red-mid)     55%,
+      var(--red-vivid)   100%
+    );
+}
+
+/* ============================================================
+   REVEAL ANIMATIONS
+   Triggered by .visible class added via IntersectionObserver
+   ============================================================ */
+.r   { opacity:0; transform:translateY(22px);   transition:opacity .65s var(--ease), transform .65s var(--ease); }
+.r-l { opacity:0; transform:translateX(-28px);  transition:opacity .65s var(--ease), transform .65s var(--ease); }
+.r-s { opacity:0; transform:scale(.94);         transition:opacity .55s var(--ease), transform .55s var(--ease); }
+
+.slide.visible .r,
+.slide.visible .r-l,
+.slide.visible .r-s { opacity:1; transform:none; }
+
+.d1 { transition-delay:.10s!important; }
+.d2 { transition-delay:.22s!important; }
+.d3 { transition-delay:.34s!important; }
+.d4 { transition-delay:.46s!important; }
+.d5 { transition-delay:.58s!important; }
+.d6 { transition-delay:.70s!important; }
+
+/* ============================================================
+   GLOBAL PROGRESS BAR (top of page)
+   ============================================================ */
+#pbar {
+  position:fixed; top:0; left:0;
+  height:3px;
+  background:linear-gradient(90deg, var(--gold), #fff 80%);
+  width:0%;
+  transition:width .4s ease;
+  z-index:200;
+}
+
+/* ============================================================
+   NAV DOTS (right edge)
+   ============================================================ */
+#nav {
+  position:fixed;
+  right:clamp(10px,1.8vw,22px);
+  top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:9px;
+  z-index:200;
+}
+
+.nd {
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--w45);
+  border:none; cursor:pointer;
+  transition:background .3s, transform .3s;
+}
+.nd.on { background:#fff; transform:scale(1.35); }
+
+/* ============================================================
+   SLIDE 1 — COVER
+   ============================================================ */
+.s1-head {
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:clamp(.8rem,1.5vw,1.3rem) var(--pad);
+  background:rgba(0,0,0,.22);
+  border-bottom:1px solid var(--w20);
+}
+
+.s1-brand {
+  display:flex; align-items:center; gap:10px;
+}
+
+/* Four-square logo mark (Huawei-like grid) */
+.logo-mark {
+  display:grid; grid-template-columns:1fr 1fr; gap:3px;
+  width:clamp(26px,3vw,38px); height:clamp(26px,3vw,38px);
+  padding:4px;
+  background:#fff;
+  border-radius:5px;
+}
+.logo-mark span {
+  border-radius:1px;
+  background:var(--red-vivid);
+}
+.logo-mark span:nth-child(2) { opacity:.55; }
+.logo-mark span:nth-child(3) { opacity:.55; }
+
+.s1-brand-name {
+  font-size:var(--sz-body); font-weight:500;
+  color:var(--w90); letter-spacing:.04em;
+}
+
+.s1-tag {
+  font-size:var(--sz-sm); color:var(--w70);
+  background:var(--w10);
+  border:1px solid var(--w20);
+  padding:4px 14px; border-radius:20px;
+}
+
+/* Main content area */
+.s1-main {
+  flex:1;
+  display:flex; align-items:center;
+  padding:clamp(1rem,3vw,3rem) var(--pad);
+  gap:clamp(2rem,6vw,8rem);
+  overflow:hidden;
+}
+
+.s1-left { flex:1; display:flex; flex-direction:column; gap:var(--gap); }
+
+.s1-eyebrow {
+  display:flex; align-items:center; gap:10px;
+}
+.s1-eye-line {
+  width:clamp(28px,3.5vw,48px); height:2px;
+  background:var(--gold); border-radius:1px;
+}
+.s1-eye-text {
+  font-size:var(--sz-sm); color:var(--gold);
+  letter-spacing:.15em; text-transform:uppercase; font-weight:500;
+}
+
+.s1-title {
+  font-size:var(--sz-xl); font-weight:700; line-height:1.1;
+  color:#fff;
+}
+.s1-title em { font-style:normal; color:var(--gold-light); }
+
+.s1-divider {
+  width:56px; height:3px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  border-radius:2px;
+}
+
+.s1-sub {
+  font-size:clamp(.85rem,1.5vw,1.2rem);
+  color:var(--w70); font-weight:300; line-height:1.65;
+}
+
+/* Right-side KPI column */
+.s1-right {
+  display:flex; flex-direction:column; gap:var(--gap);
+  flex-shrink:0;
+  width:clamp(160px,22vw,280px);
+}
+
+.s1-kpi-label {
+  font-size:var(--sz-sm); color:var(--w45);
+  letter-spacing:.1em; text-transform:uppercase;
+}
+
+.s1-kpi {
+  display:flex; flex-direction:column; align-items:center;
+  padding:clamp(.7rem,1.3vw,1.1rem) clamp(.9rem,1.8vw,1.4rem);
+  background:var(--w06);
+  border:1px solid var(--w20);
+  border-radius:8px;
+  backdrop-filter:blur(6px);
+}
+.kpi-num {
+  font-size:clamp(1.4rem,2.8vw,2.4rem); font-weight:700;
+  color:var(--gold); line-height:1;
+}
+.kpi-desc {
+  font-size:var(--sz-sm); color:var(--w70); margin-top:4px;
+  text-align:center; line-height:1.4;
+}
+
+/* Bottom meta bar */
+.s1-foot {
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:clamp(.65rem,1.2vw,1rem) var(--pad);
+  background:rgba(0,0,0,.2);
+  border-top:1px solid var(--w20);
+}
+
+.s1-meta { display:flex; gap:clamp(1.5rem,3vw,3.5rem); }
+.meta-item { display:flex; flex-direction:column; gap:2px; }
+.meta-item .lbl { font-size:clamp(.55rem,.85vw,.72rem); color:var(--w45); text-transform:uppercase; letter-spacing:.1em; }
+.meta-item .val { font-size:var(--sz-body); color:var(--w90); font-weight:500; }
+
+.s1-pnum { font-size:var(--sz-sm); color:var(--w45); }
+
+/* ============================================================
+   SLIDE 2 — PROGRESS TABLE
+   ============================================================ */
+.s2-head {
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:clamp(.7rem,1.4vw,1.1rem) var(--pad);
+  background:rgba(0,0,0,.28);
+  border-bottom:2px solid var(--gold);
+}
+
+.s2-title-wrap { display:flex; align-items:center; gap:11px; }
+.s2-accent-bar { width:4px; height:clamp(18px,2.5vw,28px); background:var(--gold); border-radius:2px; }
+.s2-title { font-size:var(--sz-h2); font-weight:600; color:#fff; }
+
+.s2-period {
+  font-size:var(--sz-sm); color:var(--w70);
+  background:var(--w10); border:1px solid var(--w20);
+  padding:4px 14px; border-radius:12px;
+}
+
+/* Table wrapper — flex:1 ensures it fills remaining height */
+.s2-body {
+  flex:1;
+  padding:clamp(.7rem,1.3vw,1.3rem) var(--pad);
+  display:flex; flex-direction:column; gap:clamp(.4rem,.8vw,.8rem);
+  overflow:hidden;
+}
+
+/* ── Progress Table ── */
+.ptable {
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  flex:1;
+}
+
+.ptable thead tr { background:rgba(0,0,0,.32); }
+
+.ptable th {
+  padding:clamp(.4rem,.85vw,.75rem) clamp(.5rem,1.1vw,.95rem);
+  font-size:var(--sz-sm); font-weight:600;
+  color:var(--gold); text-align:left;
+  letter-spacing:.07em; text-transform:uppercase;
+  border-bottom:1px solid var(--w20);
+  white-space:nowrap;
+}
+
+.ptable tbody tr {
+  background:var(--w06);
+  transition:background .2s;
+}
+.ptable tbody tr:nth-child(even) { background:rgba(255,255,255,.035); }
+.ptable tbody tr:hover            { background:var(--w10); }
+
+.ptable td {
+  padding:clamp(.55rem,1vw,.9rem) clamp(.5rem,1.1vw,.95rem);
+  font-size:var(--sz-body);
+  color:var(--w90);
+  border-bottom:1px solid var(--w10);
+  vertical-align:middle;
+}
+
+/* Column sizing hints */
+.c-no   { width:4%;  text-align:center; }
+.c-init { width:22%; }
+.c-tgt  { width:24%; }
+.c-prog { width:24%; }
+.c-bar  { width:26%; }
+
+/* Row number badge */
+.row-no {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:clamp(26px,2.6vw,34px); height:clamp(26px,2.6vw,34px);
+  background:var(--gold); border-radius:5px;
+  font-size:var(--sz-sm); font-weight:700;
+  color:var(--red-darkest);
+}
+
+/* Category tag */
+.itag {
+  display:inline-block;
+  font-size:clamp(.55rem,.78vw,.68rem);
+  background:rgba(242,193,0,.14);
+  border:1px solid rgba(242,193,0,.28);
+  color:var(--gold);
+  padding:2px 7px; border-radius:3px;
+  margin-bottom:3px;
+  letter-spacing:.06em;
+}
+
+.init-name { font-weight:600; color:#fff; line-height:1.35; }
+.init-sub  { font-size:clamp(.62rem,.88vw,.76rem); color:var(--w45); margin-top:1px; }
+
+.tgt-text, .prog-text {
+  font-size:clamp(.65rem,.95vw,.83rem);
+  color:var(--w70); line-height:1.55;
+  font-style:italic;
+}
+
+/* Progress bar cell */
+.bar-cell { display:flex; flex-direction:column; gap:5px; }
+
+.bar-meta {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; flex-wrap:wrap;
+}
+
+.bar-track {
+  height:5px;
+  background:rgba(255,255,255,.14);
+  border-radius:3px; overflow:hidden;
+}
+
+.bar-fill {
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg, var(--gold), #fff 160%);
+  width:0%;
+  transition:width 1.1s var(--ease);
+}
+
+.bar-lbl {
+  font-size:var(--sz-sm); color:var(--w45);
+  white-space:nowrap;
+}
+
+/* Status badges */
+.badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:clamp(.56rem,.8vw,.7rem);
+  padding:2px 9px; border-radius:10px;
+  font-weight:500; white-space:nowrap;
+}
+.badge::before {
+  content:''; width:5px; height:5px;
+  border-radius:50%; flex-shrink:0;
+}
+
+.b-plan  { background:rgba(160,168,255,.14); border:1px solid rgba(160,168,255,.3); color:#b0b8ff; }
+.b-plan::before  { background:#b0b8ff; }
+
+.b-go    { background:rgba(242,193,0,.15); border:1px solid rgba(242,193,0,.32); color:var(--gold); }
+.b-go::before    { background:var(--gold); }
+
+.b-done  { background:rgba(52,211,153,.14); border:1px solid rgba(52,211,153,.3); color:#6ee7b7; }
+.b-done::before  { background:#6ee7b7; }
+
+/* Footnote row */
+.footnote {
+  font-size:var(--sz-sm); color:var(--w45);
+  padding-top:clamp(.3rem,.6vw,.55rem);
+  border-top:1px solid var(--w10);
+  flex-shrink:0;
+}
+
+/* Slide footer */
+.s2-foot {
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:clamp(.45rem,.9vw,.8rem) var(--pad);
+  background:rgba(0,0,0,.2);
+  border-top:1px solid var(--w10);
+}
+.foot-dept, .foot-pnum { font-size:var(--sz-sm); color:var(--w45); }
+
+/* ============================================================
+   KEYBOARD HINT — not printed
+   ============================================================ */
+#hint {
+  position:fixed; bottom:clamp(10px,1.6vw,18px);
+  left:50%; transform:translateX(-50%);
+  font-size:clamp(.58rem,.85vw,.73rem);
+  color:rgba(255,255,255,.28);
+  display:flex; align-items:center; gap:6px;
+  z-index:50; pointer-events:none;
+}
+#hint kbd {
+  background:var(--w10); border:1px solid var(--w20);
+  border-radius:3px; padding:1px 6px; font-size:inherit;
+}
+
+/* ============================================================
+   RESPONSIVE — viewport height breakpoints
+   ============================================================ */
+@media (max-height:700px) {
+  :root { --pad:clamp(1rem,2.5vw,2.5rem); --gap:clamp(.4rem,.9vw,.9rem); }
+}
+
+@media (max-height:600px) {
+  :root {
+    --sz-xl:clamp(1.4rem,4vw,2.8rem);
+    --pad:clamp(.8rem,2vw,2rem);
   }
+  #hint, .s1-right { display:none; }
+}
 
-  /* ── Slide Shell ── */
-  .slide {
-    width: 960px;
-    aspect-ratio: 16 / 9;
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 24px 80px rgba(0,0,0,.6);
-    background: #fff;
-    page-break-after: always;
+@media (max-height:500px) {
+  :root {
+    --sz-xl:clamp(1.2rem,3.5vw,2.2rem);
+    --sz-body:clamp(.62rem,.95vw,.82rem);
+    --pad:clamp(.6rem,1.8vw,1.6rem);
   }
+  #nav { display:none; }
+}
 
-  /* ══════════════════════════════════
-     SLIDE 1 — Title
-  ══════════════════════════════════ */
-  .slide-1 {
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 60%, #0a1929 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 64px 80px;
-    color: #fff;
-  }
+/* Hide progress-text column on narrow screens */
+@media (max-width:860px) {
+  .c-prog, .ptable th:nth-child(4) { display:none; }
+}
 
-  /* accent bar */
-  .slide-1::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 6px; height: 100%;
-    background: linear-gradient(180deg, #38bdf8, #818cf8);
-  }
+@media (max-width:620px) {
+  .c-tgt, .ptable th:nth-child(3) { display:none; }
+  .s1-right { display:none; }
+}
 
-  /* decorative circles */
-  .slide-1::after {
-    content: "";
-    position: absolute;
-    right: -80px; bottom: -80px;
-    width: 360px; height: 360px;
-    border-radius: 50%;
-    background: rgba(56,189,248,.08);
-    pointer-events: none;
-  }
+/* ============================================================
+   PRINT / PDF EXPORT (Ctrl+P)
+   ============================================================ */
+@media print {
+  body  { background:#fff; }
+  #pbar, #nav, #hint { display:none; }
+  .slide { box-shadow:none; page-break-after:always; }
+}
 
-  .s1-tag {
-    display: inline-block;
-    background: rgba(56,189,248,.18);
-    border: 1px solid rgba(56,189,248,.4);
-    color: #7dd3fc;
-    font-size: 13px;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 20px;
-    margin-bottom: 28px;
-    width: fit-content;
-  }
-
-  .s1-title {
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #f0f9ff;
-    margin-bottom: 16px;
-  }
-
-  .s1-title span {
-    color: #38bdf8;
-  }
-
-  .s1-subtitle {
-    font-size: 18px;
-    color: #94a3b8;
-    margin-bottom: 56px;
-    line-height: 1.6;
-  }
-
-  .s1-meta {
-    display: flex;
-    gap: 40px;
-  }
-
-  .s1-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .s1-meta-item .label {
-    font-size: 12px;
-    color: #64748b;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-
-  .s1-meta-item .value {
-    font-size: 15px;
-    color: #cbd5e1;
-  }
-
-  .s1-divider {
-    width: 48px;
-    height: 3px;
-    background: linear-gradient(90deg, #38bdf8, #818cf8);
-    border-radius: 2px;
-    margin-bottom: 28px;
-  }
-
-  /* initiative count badge */
-  .s1-badge-row {
-    position: absolute;
-    right: 80px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .s1-badge {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    background: rgba(56,189,248,.12);
-    border: 1.5px solid rgba(56,189,248,.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 700;
-    color: #38bdf8;
-  }
-
-  .s1-badge-label {
-    font-size: 11px;
-    color: #64748b;
-    text-align: center;
-    letter-spacing: .06em;
-    line-height: 1.4;
-  }
-
-  /* ══════════════════════════════════
-     SLIDE 2 — Initiatives
-  ══════════════════════════════════ */
-  .slide-2 {
-    background: #f8fafc;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-  }
-
-  .s2-header {
-    background: linear-gradient(90deg, #1e3a5f, #0f2744);
-    padding: 22px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-
-  .s2-header-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #f0f9ff;
-    letter-spacing: .02em;
-  }
-
-  .s2-header-sub {
-    font-size: 13px;
-    color: #94a3b8;
-    background: rgba(255,255,255,.08);
-    padding: 4px 14px;
-    border-radius: 12px;
-  }
-
-  .s2-body {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 0;
-    padding: 24px 40px 28px;
-    gap: 16px;
-  }
-
-  /* initiative card */
-  .card {
-    background: #fff;
-    border-radius: 10px;
-    border: 1.5px solid #e2e8f0;
-    padding: 18px 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow .2s;
-  }
-
-  .card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 3px;
-  }
-
-  .card-1::before { background: linear-gradient(90deg, #38bdf8, #818cf8); }
-  .card-2::before { background: linear-gradient(90deg, #34d399, #059669); }
-  .card-3::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-  .card-4::before { background: linear-gradient(90deg, #a78bfa, #ec4899); }
-
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .card-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-
-  .card-1 .card-icon { background: #eff6ff; }
-  .card-2 .card-icon { background: #f0fdf4; }
-  .card-3 .card-icon { background: #fffbeb; }
-  .card-4 .card-icon { background: #faf5ff; }
-
-  .card-index {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
-
-  .card-1 .card-index { color: #38bdf8; }
-  .card-2 .card-index { color: #34d399; }
-  .card-3 .card-index { color: #f59e0b; }
-  .card-4 .card-index { color: #a78bfa; }
-
-  .card-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-    line-height: 1.4;
-    flex: 1;
-  }
-
-  .card-desc {
-    font-size: 12px;
-    color: #64748b;
-    line-height: 1.6;
-    padding-left: 48px;
-  }
-
-  /* progress section inside card */
-  .card-progress {
-    margin-top: 4px;
-    padding: 10px 12px;
-    background: #f8fafc;
-    border-radius: 6px;
-    border: 1px dashed #cbd5e1;
-    margin-left: 48px;
-  }
-
-  .progress-label {
-    font-size: 10px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: #94a3b8;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-
-  .progress-placeholder {
-    font-size: 12px;
-    color: #94a3b8;
-    font-style: italic;
-  }
-
-  .progress-bar-bg {
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
-    margin-top: 8px;
-    overflow: hidden;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    width: 0%;   /* ← 在此填充百分比 */
-  }
-
-  .card-1 .progress-bar-fill { background: linear-gradient(90deg, #38bdf8, #818cf8); }
-  .card-2 .progress-bar-fill { background: linear-gradient(90deg, #34d399, #059669); }
-  .card-3 .progress-bar-fill { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-  .card-4 .progress-bar-fill { background: linear-gradient(90deg, #a78bfa, #ec4899); }
-
-  /* slide number */
-  .slide-number {
-    position: absolute;
-    bottom: 10px;
-    right: 20px;
-    font-size: 11px;
-    color: #94a3b8;
-  }
-
-  /* ── Print / Export hint ── */
-  .hint {
-    color: #475569;
-    font-size: 13px;
-    text-align: center;
-    line-height: 1.8;
-  }
-
-  .hint kbd {
-    background: #1e293b;
-    color: #94a3b8;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 12px;
-  }
-
-  @media print {
-    body { background: #fff; gap: 0; padding: 0; }
-    .hint { display: none; }
-    .slide { box-shadow: none; border-radius: 0; page-break-after: always; width: 100%; }
-  }
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.15s!important; }
+  html { scroll-behavior:auto; }
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════ SLIDE 1 ═══════════════════════════ -->
-<div class="slide slide-1">
-  <div class="s1-tag">Progress Report · 2025</div>
-  <div class="s1-divider"></div>
-  <div class="s1-title">AI 能力建设<br><span>阶段进展汇报</span></div>
-  <div class="s1-subtitle">聚焦赋能提效 · 推动 AI 融入研发全流程</div>
-  <div class="s1-meta">
-    <div class="s1-meta-item">
-      <span class="label">汇报部门</span>
-      <span class="value">（填写部门名称）</span>
-    </div>
-    <div class="s1-meta-item">
-      <span class="label">汇报人</span>
-      <span class="value">（填写姓名）</span>
-    </div>
-    <div class="s1-meta-item">
-      <span class="label">日期</span>
-      <span class="value">2026 年 XX 月</span>
-    </div>
-  </div>
+<!-- Global progress bar -->
+<div id="pbar"></div>
 
-  <!-- right side badge -->
-  <div class="s1-badge-row">
-    <div class="s1-badge">4</div>
-    <div class="s1-badge-label">关键<br>举措</div>
-  </div>
+<!-- Navigation dots -->
+<nav id="nav" aria-label="幻灯片导航"></nav>
 
-  <div class="slide-number">1 / 2</div>
+<!-- Keyboard hint -->
+<div id="hint">
+  <kbd>↑↓</kbd><span>翻页</span>
+  <kbd>Space</kbd><span>下一页</span>
+  <span style="margin:0 4px">·</span>
+  <kbd>Ctrl+P</kbd><span>导出 PDF</span>
 </div>
 
 
-<!-- ═══════════════════════════ SLIDE 2 ═══════════════════════════ -->
-<div class="slide slide-2">
-  <div class="s2-header">
-    <div class="s2-header-title">关键举措 &amp; 进展概览</div>
-    <div class="s2-header-sub">截至 2026 年 XX 月</div>
+<!-- ═══════════════════════════════════════════════
+     SLIDE 1  —  COVER
+     ═══════════════════════════════════════════════ -->
+<section class="slide" id="s1">
+
+  <!-- Top brand bar -->
+  <div class="s1-head r">
+    <div class="s1-brand">
+      <div class="logo-mark">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <span class="s1-brand-name">（填写部门名称）</span>
+    </div>
+    <span class="s1-tag">AI 能力建设专项</span>
   </div>
 
+  <!-- Main area -->
+  <div class="s1-main">
+
+    <!-- Left: headline -->
+    <div class="s1-left">
+      <div class="s1-eyebrow r d1">
+        <div class="s1-eye-line"></div>
+        <span class="s1-eye-text">Progress Report · 2026</span>
+      </div>
+
+      <h1 class="s1-title r d2">
+        AI 能力建设<br><em>阶段进展汇报</em>
+      </h1>
+
+      <div class="s1-divider r d3"></div>
+
+      <p class="s1-sub r d3">
+        聚焦赋能提效 &nbsp;·&nbsp; 推动 AI 融入研发全流程
+      </p>
+    </div>
+
+    <!-- Right: KPI summary -->
+    <div class="s1-right">
+      <span class="s1-kpi-label r d2">本期举措概览</span>
+
+      <div class="s1-kpi r d3">
+        <span class="kpi-num">4</span>
+        <span class="kpi-desc">关键举措</span>
+      </div>
+      <div class="s1-kpi r d4">
+        <span class="kpi-num" id="kpi-done">—</span>
+        <span class="kpi-desc">已完成项</span>
+      </div>
+      <div class="s1-kpi r d5">
+        <span class="kpi-num" id="kpi-wip">—</span>
+        <span class="kpi-desc">进行中</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom meta -->
+  <div class="s1-foot r d4">
+    <div class="s1-meta">
+      <div class="meta-item">
+        <span class="lbl">汇报人</span>
+        <span class="val">（填写姓名）</span>
+      </div>
+      <div class="meta-item">
+        <span class="lbl">部门</span>
+        <span class="val">（填写部门）</span>
+      </div>
+      <div class="meta-item">
+        <span class="lbl">日期</span>
+        <span class="val">2026 年 XX 月</span>
+      </div>
+    </div>
+    <span class="s1-pnum">01 / 02</span>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     SLIDE 2  —  PROGRESS TABLE
+     ═══════════════════════════════════════════════ -->
+<section class="slide" id="s2">
+
+  <!-- Slide header -->
+  <div class="s2-head r">
+    <div class="s2-title-wrap">
+      <div class="s2-accent-bar"></div>
+      <span class="s2-title">关键举措 · 进展概览</span>
+    </div>
+    <span class="s2-period">截至 2026 年 XX 月</span>
+  </div>
+
+  <!-- Table area -->
   <div class="s2-body">
 
-    <!-- Card 1 -->
-    <div class="card card-1">
-      <div class="card-header">
-        <div class="card-icon">📚</div>
-        <div>
-          <div class="card-index">Initiative 01 · 知识赋能</div>
-          <div class="card-title">每月 AI 基础赋能分享<br>（概念 + 案例 + Q&amp;A）并归档</div>
-        </div>
-      </div>
-      <div class="card-desc">频率：每月 1 次 &nbsp;｜&nbsp; 形式：内部分享 + 归档文档</div>
-      <div class="card-progress">
-        <div class="progress-label">进展</div>
-        <div class="progress-placeholder">
-          · 已完成第 X 期，主题：（填写）<br>
-          · 累计参与人次：XX 人 &nbsp;|&nbsp; 归档文章：X 篇
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: 0%"></div><!-- 填充进度 % -->
-        </div>
-      </div>
-    </div>
+    <table class="ptable r d1" role="table" aria-label="AI能力建设关键举措进展表">
+      <thead>
+        <tr>
+          <th class="c-no">#</th>
+          <th class="c-init">关键举措</th>
+          <th class="c-tgt">预期目标（年度）</th>
+          <th class="c-prog">当前进展</th>
+          <th class="c-bar">完成状态 &amp; 进度</th>
+        </tr>
+      </thead>
+      <tbody>
 
-    <!-- Card 2 -->
-    <div class="card card-2">
-      <div class="card-header">
-        <div class="card-icon">💡</div>
-        <div>
-          <div class="card-index">Initiative 02 · 实践传播</div>
-          <div class="card-title">每月 1–2 次 CodeAgent 优秀<br>实践分享，输出实践博客</div>
-        </div>
-      </div>
-      <div class="card-desc">形式：真实 MR / 新业务快速入门 &nbsp;｜&nbsp; 产出：实践博客</div>
-      <div class="card-progress">
-        <div class="progress-label">进展</div>
-        <div class="progress-placeholder">
-          · 已举办 X 次，分享案例：（填写）<br>
-          · 已发布博客：X 篇
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
+        <!-- ── 举措 01 ── -->
+        <tr class="r d2">
+          <td class="c-no"><div class="row-no">01</div></td>
+          <td class="c-init">
+            <div class="itag">知识赋能</div>
+            <div class="init-name">AI 基础赋能分享</div>
+            <div class="init-sub">每月 1 次，含概念 · 案例 · Q&amp;A</div>
+          </td>
+          <td class="c-tgt">
+            <div class="tgt-text">
+              全年 12 期分享<br>
+              每期归档至知识库<br>
+              覆盖全组成员
+            </div>
+          </td>
+          <td class="c-prog">
+            <div class="prog-text">
+              已完成第 X 期<br>
+              参与人次：XX 人<br>
+              归档文章：X 篇
+            </div>
+          </td>
+          <td class="c-bar">
+            <div class="bar-cell">
+              <div class="bar-meta">
+                <span class="badge b-go">进行中</span>
+                <!-- 修改下方分子/分母及 data-w 百分比 -->
+                <span class="bar-lbl">X / 12 期</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" data-w="0"></div><!-- ← 填写 0~100 -->
+              </div>
+            </div>
+          </td>
+        </tr>
 
-    <!-- Card 3 -->
-    <div class="card card-3">
-      <div class="card-header">
-        <div class="card-icon">🔧</div>
-        <div>
-          <div class="card-index">Initiative 03 · 工具孵化</div>
-          <div class="card-title">孵化 1–2 个 AI 提效工具/脚本/<br>插件，覆盖高频重复场景</div>
-        </div>
-      </div>
-      <div class="card-desc">目标：AI 融入开发流程 &nbsp;｜&nbsp; 产出：可复用工具/插件</div>
-      <div class="card-progress">
-        <div class="progress-label">进展</div>
-        <div class="progress-placeholder">
-          · 工具名称：（填写）&nbsp;|&nbsp; 状态：（开发中 / 已上线）<br>
-          · 覆盖场景：（填写）
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
+        <!-- ── 举措 02 ── -->
+        <tr class="r d3">
+          <td class="c-no"><div class="row-no">02</div></td>
+          <td class="c-init">
+            <div class="itag">实践传播</div>
+            <div class="init-name">CodeAgent 实践分享</div>
+            <div class="init-sub">每月 1–2 次，输出实践博客</div>
+          </td>
+          <td class="c-tgt">
+            <div class="tgt-text">
+              每月 1–2 次分享<br>
+              博客累计 ≥ 12 篇<br>
+              覆盖真实 MR / 新业务场景
+            </div>
+          </td>
+          <td class="c-prog">
+            <div class="prog-text">
+              已举办 X 次<br>
+              已发布博客：X 篇<br>
+              典型案例：（填写）
+            </div>
+          </td>
+          <td class="c-bar">
+            <div class="bar-cell">
+              <div class="bar-meta">
+                <span class="badge b-plan">规划中</span>
+                <span class="bar-lbl">X / 12+ 篇</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" data-w="0"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
 
-    <!-- Card 4 -->
-    <div class="card card-4">
-      <div class="card-header">
-        <div class="card-icon">🚀</div>
-        <div>
-          <div class="card-index">Initiative 04 · 需求试点</div>
-          <div class="card-title">各组 PL 规划 2–3 个适合<br>CodeAgent 完成的需求进行试点</div>
-        </div>
-      </div>
-      <div class="card-desc">前提：明确 CodeAgent 能力边界 &nbsp;｜&nbsp; 产出：试点结果报告</div>
-      <div class="card-progress">
-        <div class="progress-label">进展</div>
-        <div class="progress-placeholder">
-          · 已规划需求：（填写）<br>
-          · 试点状态：（进行中 / 已完成），结论：（填写）
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
+        <!-- ── 举措 03 ── -->
+        <tr class="r d4">
+          <td class="c-no"><div class="row-no">03</div></td>
+          <td class="c-init">
+            <div class="itag">工具孵化</div>
+            <div class="init-name">AI 提效工具孵化</div>
+            <div class="init-sub">脚本 / 插件，覆盖高频重复场景</div>
+          </td>
+          <td class="c-tgt">
+            <div class="tgt-text">
+              孵化 1–2 个工具<br>
+              稳定运行 &gt; 1 个月<br>
+              复用率达标
+            </div>
+          </td>
+          <td class="c-prog">
+            <div class="prog-text">
+              工具名称：（填写）<br>
+              覆盖场景：（填写）<br>
+              状态：开发中 / 已上线
+            </div>
+          </td>
+          <td class="c-bar">
+            <div class="bar-cell">
+              <div class="bar-meta">
+                <span class="badge b-go">开发中</span>
+                <span class="bar-lbl">X / 2 个</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" data-w="0"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ── 举措 04 ── -->
+        <tr class="r d5">
+          <td class="c-no"><div class="row-no">04</div></td>
+          <td class="c-init">
+            <div class="itag">需求试点</div>
+            <div class="init-name">CodeAgent 需求试点</div>
+            <div class="init-sub">各组 PL 规划并主导试点落地</div>
+          </td>
+          <td class="c-tgt">
+            <div class="tgt-text">
+              各组 2–3 个试点需求<br>
+              形成可复用方法论<br>
+              沉淀经验至博客 / Wiki
+            </div>
+          </td>
+          <td class="c-prog">
+            <div class="prog-text">
+              已规划需求：（填写）<br>
+              试点状态：（填写）<br>
+              结论 / 收益：（填写）
+            </div>
+          </td>
+          <td class="c-bar">
+            <div class="bar-cell">
+              <div class="bar-meta">
+                <span class="badge b-plan">规划中</span>
+                <span class="bar-lbl">X / 6+ 个</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" data-w="0"></div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <!-- Footnote -->
+    <p class="footnote r d6">
+      * 斜体内容为待填充占位符 &nbsp;·&nbsp;
+      进度数值、状态标签及 KPI 请在汇报前更新 &nbsp;·&nbsp;
+      状态可选：<strong style="color:#b0b8ff">规划中</strong> /
+      <strong style="color:var(--gold)">进行中</strong> /
+      <strong style="color:#6ee7b7">已完成</strong>
+    </p>
 
   </div><!-- /s2-body -->
 
-  <div class="slide-number">2 / 2</div>
-</div>
+  <!-- Slide footer -->
+  <div class="s2-foot r">
+    <span class="foot-dept">AI 能力建设专项 · （填写部门）</span>
+    <span class="foot-pnum">02 / 02</span>
+  </div>
+
+</section>
 
 
-<!-- ── Usage hint (not printed) ── -->
-<div class="hint">
-  浏览器全屏预览 &nbsp;|&nbsp;
-  <kbd>Ctrl + P</kbd> → 另存为 PDF &nbsp;|&nbsp;
-  填充进度：修改每张卡片中 <kbd>progress-placeholder</kbd> 文字 及 <kbd>style="width: 0%"</kbd> 数值
-</div>
+<script>
+/* ====================================================
+   PRESENTATION CONTROLLER
+   - Keyboard / touch / wheel navigation
+   - Scroll-snap with smooth scrollIntoView
+   - IntersectionObserver → .visible for animations
+   - Progress bar & nav dots sync
+   ==================================================== */
+class Deck {
+  constructor() {
+    this.slides   = [...document.querySelectorAll('.slide')];
+    this.current  = 0;
+    this.$pbar    = document.getElementById('pbar');
+    this.$nav     = document.getElementById('nav');
+    this._lastWhl = 0;
+    this._ioMap   = new Map();
 
+    this._buildNav();
+    this._observe();
+    this._keys();
+    this._touch();
+    this._wheel();
+
+    // Trigger first slide immediately
+    this.slides[0]?.classList.add('visible');
+    this._sync(0);
+  }
+
+  /* Build a dot per slide */
+  _buildNav() {
+    this.slides.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.className = 'nd' + (i === 0 ? ' on' : '');
+      b.setAttribute('aria-label', `第 ${i + 1} 页`);
+      b.addEventListener('click', () => this.go(i));
+      this.$nav.appendChild(b);
+    });
+  }
+
+  /* IntersectionObserver: add .visible + sync state on enter */
+  _observe() {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('visible');
+        const i = this.slides.indexOf(e.target);
+        if (i < 0) return;
+        this.current = i;
+        this._sync(i);
+        this._animBars(e.target);
+      });
+    }, { threshold: 0.55 });
+
+    this.slides.forEach(s => io.observe(s));
+  }
+
+  /* Animate .bar-fill elements on the entering slide */
+  _animBars(slide) {
+    slide.querySelectorAll('.bar-fill').forEach(el => {
+      const w = parseFloat(el.dataset.w) || 0;
+      // Reset then set to trigger CSS transition
+      el.style.width = '0%';
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => { el.style.width = w + '%'; })
+      );
+    });
+  }
+
+  /* Sync progress bar and nav dots */
+  _sync(i) {
+    const pct = this.slides.length < 2 ? 100
+      : (i / (this.slides.length - 1)) * 100;
+    this.$pbar.style.width = pct + '%';
+    this.$nav.querySelectorAll('.nd').forEach((d, j) =>
+      d.classList.toggle('on', j === i)
+    );
+  }
+
+  go(i) {
+    const t = Math.max(0, Math.min(i, this.slides.length - 1));
+    this.slides[t]?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  _keys() {
+    document.addEventListener('keydown', e => {
+      const fwd = ['ArrowDown','ArrowRight',' '].includes(e.key);
+      const bwd = ['ArrowUp','ArrowLeft'].includes(e.key);
+      if (!fwd && !bwd) return;
+      e.preventDefault();
+      this.go(fwd ? this.current + 1 : this.current - 1);
+    });
+  }
+
+  _touch() {
+    let y0 = null;
+    document.addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive:true });
+    document.addEventListener('touchend',   e => {
+      if (y0 === null) return;
+      const dy = y0 - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 45)
+        this.go(dy > 0 ? this.current + 1 : this.current - 1);
+      y0 = null;
+    }, { passive:true });
+  }
+
+  _wheel() {
+    document.addEventListener('wheel', e => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - this._lastWhl < 750) return;  // debounce
+      this._lastWhl = now;
+      this.go(e.deltaY > 0 ? this.current + 1 : this.current - 1);
+    }, { passive: false });
+  }
+}
+
+new Deck();
+</script>
 </body>
 </html>
